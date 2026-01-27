@@ -41,3 +41,14 @@ Interrupt Service Routine (ISR)-only systems.
 | **Responsiveness** | Slow (depends on loop size) | Very Fast | Fast & Deterministic |
 | **Multitasking** | Poor | Basic (Foreground/Background) | Excellent |
 | **Predictability** | Low | High for one task | Very High for many tasks |
+
+## The Concept of a Thread
+
+In the context of a Real-Time Operating System (RTOS), a thread (often referred
+to as a task) is the smallest unit of execution managed by the RTOS scheduler.
+It represents a single, sequential flow of control, allowing complex software
+applications to be broken down into smaller, manageable, and concurrent units. 
+
+## List of Contents
+
+- Introduction
