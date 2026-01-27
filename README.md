@@ -27,4 +27,17 @@ Context switching in an RTOS is the process of saving the current task's state
 task to run, managed by the scheduler, typically triggered by timer interrupts
 (SysTick) or preemptive events.
 
+## RTOS vs ISR and Busy Wait Systems
 
+Real-Time Operating Systems (RTOS) provide a structured, deterministic approach
+to managing multiple tasks concurrently, contrasting sharply with the simpler,
+yet less efficient, busy-wait systems and the more foundational, but limited,
+Interrupt Service Routine (ISR)-only systems. 
+
+| Feature | Busy Wait (Polling) | ISR (Interrupts) | RTOS |
+| --- | --- | --- | --- |
+| **CPU Utilization** | 100% (mostly wasted) | Low (only when needed) | Medium (scheduling overhead) |
+| **Complexity** | Very Low | Moderate | High |
+| **Responsiveness** | Slow (depends on loop size) | Very Fast | Fast & Deterministic |
+| **Multitasking** | Poor | Basic (Foreground/Background) | Excellent |
+| **Predictability** | Low | High for one task | Very High for many tasks |
