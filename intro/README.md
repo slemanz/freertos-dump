@@ -35,3 +35,26 @@ E.g:
 - `vTaskPrioritySet()` returns a void and is defined within *task.c*
 - `xQueueReceive()` returns a variable of type BaseType_t and is defined within *queue.c*
 - `pvTimerGetTimerID()` returns a pointer to void and is defined within *timers.c*
+
+## Macro Names
+
+- Macro in uppercase
+- Prefix in lowercase
+- Prefix indicates macro definition file
+
+port**MAX_DELAY** : located in portable.h
+
+Other examples:
+
+- taskENTER_CRITICAL() : task.h
+- pdTRUE : projdefs.h
+- configUSE_PREEMPTION : FreeRTOSConfig.h
+- errQUEUE_FULL : projdefs.h
+
+| Macro | Value |
+| --- | --- |
+| pdTRUE | 1 |
+| pdFALSE | 0 |
+| pdPASS | 1 |
+| pdFAIL | 0 |
+
