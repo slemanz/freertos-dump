@@ -52,3 +52,7 @@ applications to be broken down into smaller, manageable, and concurrent units.
 ## List of Contents
 
 - Introduction
+
+---
+
+Using **FreeRTOS-Kernel-11.2.0**
