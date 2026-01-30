@@ -1,0 +1,23 @@
+{
+	"folders": [
+        {
+            "path": "../app"
+        },
+        {
+            "path": "../drivers"
+        },
+        {
+            "path": "../linkers"
+        },
+        {
+            "path": "../../freertos"
+        },
+    ],
+    "settings": {
+        "C_Cpp.default.includePath": [
+            "${workspaceFolder}/../app/Inc",
+            "${workspaceFolder}/../drivers/Inc",
+            "${workspaceFolder}/../../freertos/Include"
+        ],
+    }
+}
