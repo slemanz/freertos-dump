@@ -1,0 +1,9 @@
+# build files
+*.map
+*.o
+*.elf
+*.bin
+
+# worksapces
+*.vscode*
+*.jdebug.user
