@@ -2,10 +2,11 @@ CC=arm-none-eabi-gcc
 TARGET=flash
 
 MACH=-mcpu=cortex-m4
-FLOAT=-mfloat-abi=soft
+FLOAT=-mfloat-abi=hard
 
 BUILD_DIR = Build
 ROOT_DIR = ..
+FREERTOS_DIR = ../../freertos
 
 LINKER= -T $(ROOT_DIR)/linkers/STM32F411.ld
 MAP_FILE= -Wl,-Map=$(BUILD_DIR)/$(TARGET).map
@@ -23,10 +24,13 @@ OBJCOPY=arm-none-eabi-objcopy
 #				 INCLUDES
 ###########################################
 
-INCLUDES+= -I $(ROOT_DIR)/app/Inc/
-INCLUDES+= -I $(ROOT_DIR)/drivers/Inc/
-INCLUDES+= -I $(ROOT_DIR)/common/Inc/
-INCLUDES+= -I $(ROOT_DIR)/interface/Inc/
+INCLUDES+= -I $(ROOT_DIR)/app/Inc
+INCLUDES+= -I $(ROOT_DIR)/drivers/Inc
+INCLUDES+= -I $(ROOT_DIR)/common/Inc
+INCLUDES+= -I $(ROOT_DIR)/interface/Inc
+
+INCLUDES+= -I $(FREERTOS_DIR)/include
+INCLUDES+= -I $(FREERTOS_DIR)/portable/GCC/ARM_CM4F
 
 ############################################
 # 				SOURCE FILES
@@ -43,6 +47,17 @@ DRIVERS		+= $(BUILD_DIR)/driver_gpio.o
 DRIVERS		+= $(BUILD_DIR)/driver_uart.o
 DRIVERS		+= $(BUILD_DIR)/driver_interrupt.o
 
+FREERTOS_OBJS += $(BUILD_DIR)/croutine.o
+FREERTOS_OBJS += $(BUILD_DIR)/event_groups.o
+FREERTOS_OBJS += $(BUILD_DIR)/list.o
+FREERTOS_OBJS += $(BUILD_DIR)/queue.o
+FREERTOS_OBJS += $(BUILD_DIR)/stream_buffer.o
+FREERTOS_OBJS += $(BUILD_DIR)/tasks.o
+FREERTOS_OBJS += $(BUILD_DIR)/timers.o
+
+FREERTOS_OBJS += $(BUILD_DIR)/port.o
+FREERTOS_OBJS += $(BUILD_DIR)/heap_4.o
+
 PREREQ = $(BUILD_DIR)
 
 all: $(PREREQ) $(BUILD_DIR)/$(TARGET).elf
@@ -56,11 +71,21 @@ $(BUILD_DIR)/%.o: $(ROOT_DIR)/app/Src/%.c
 $(BUILD_DIR)/%.o: $(ROOT_DIR)/drivers/Src/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_DIR)/$(*).o $(ROOT_DIR)/drivers/Src/$(*).c
 
-$(BUILD_DIR)/%.o: $(ROOT_DIR)/linkers/*.c
+$(BUILD_DIR)/%.o: $(ROOT_DIR)/linkers/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_DIR)/$(*).o $(ROOT_DIR)/linkers/$(*).c
 
+# FreeRTOS source rules
+$(BUILD_DIR)/%.o: $(FREERTOS_DIR)/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_DIR)/$(*).o $(FREERTOS_DIR)/$(*).c
+
+$(BUILD_DIR)/%.o: $(FREERTOS_DIR)/portable/GCC/ARM_CM4F/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_DIR)/$(*).o $(FREERTOS_DIR)/portable/GCC/ARM_CM4F/$(*).c
+
+$(BUILD_DIR)/%.o: $(FREERTOS_DIR)/portable/MemMang/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_DIR)/$(*).o $(FREERTOS_DIR)/portable/MemMang/$(*).c
+
 # TARGET ELF
-$(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(CORE) $(BSP) $(SHARED) $(INTERFACE)
+$(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(FREERTOS_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $^
 	$(OBJCOPY) -O binary $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).bin
 	arm-none-eabi-size $(BUILD_DIR)/$(TARGET).elf

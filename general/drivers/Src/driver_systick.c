@@ -4,10 +4,11 @@
 uint64_t g_ticks = 0;
 uint64_t g_ticks_p = 0;
 
+/*
 static void ticks_increment(void)
 {
 	g_ticks += 1;
-}
+}*/
 
 void systick_init(uint32_t tick_hz)
 {
@@ -79,7 +80,8 @@ void systick_deinit(void)
     systick_interrupt(DISABLE);
 }
 
+/*
 void SysTick_Handler(void)
 {
     ticks_increment();
-}
+}*/
