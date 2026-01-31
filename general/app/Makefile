@@ -46,6 +46,7 @@ DRIVERS		+= $(BUILD_DIR)/driver_systick.o
 DRIVERS		+= $(BUILD_DIR)/driver_gpio.o
 DRIVERS		+= $(BUILD_DIR)/driver_uart.o
 DRIVERS		+= $(BUILD_DIR)/driver_interrupt.o
+DRIVERS		+= $(BUILD_DIR)/driver_fpu.o
 
 FREERTOS_OBJS += $(BUILD_DIR)/croutine.o
 FREERTOS_OBJS += $(BUILD_DIR)/event_groups.o

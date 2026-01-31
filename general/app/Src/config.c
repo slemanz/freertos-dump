@@ -7,6 +7,8 @@
 #include "driver_gpio.h"
 #include "driver_uart.h"
 #include "driver_systick.h"
+#include "driver_fpu.h"
+
 
 static const GPIO_PinConfig_t GPIO_ConfigTable[] = {
 
@@ -26,6 +28,7 @@ void config_drivers(void)
 {
     GPIO_Init_table(GPIO_ConfigTable, (sizeof(GPIO_ConfigTable)/sizeof(GPIO_ConfigTable[0])));
     UART_Init_table(UART_ConfigTable, (sizeof(UART_ConfigTable)/sizeof(UART_ConfigTable[0])));
+    fpu_enable();
 }
 
 /************************************************************
