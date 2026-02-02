@@ -10,3 +10,5 @@ BaseType_t xTaskCreate( TaskFunction pvTaskCode,
                         UBaseType_t uxPriority,
                         TaskHandle_t *pxCreatedTask );
 ```
+
+- **[main example code](app/Src/main.c)**

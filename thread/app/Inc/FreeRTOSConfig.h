@@ -88,5 +88,7 @@ standard names. */
 
 #define USE_CUSTOM_SYSTICK_HANDLER_IMPLEMENTATION 0
 
+//#define configUSE_NEWLIB_REENTRANT 1
+
 
 #endif /* FREERTOS_CONFIG_H */
