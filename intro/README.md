@@ -1,60 +1,64 @@
-# Introduction
+# Introduction to the FreeRTOS API
 
-## Data types
+FreeRTOS is written to be portable across dozens of architectures and toolchains,
+and that portability leaves a visible fingerprint on its API. Types are aliased
+so the kernel can adapt to the target's word size, and every identifier carries a
+prefix that encodes its type and origin. Once you learn to read those
+conventions, an unfamiliar function name tells you what it returns and where it
+lives before you ever open the header.
 
-**TickType_t:**
+## Portable Data Types
 
-- Unsigned 16-bit type
-- Unsigned 32-bit type
-- (base on config settings)
+Rather than use raw C types directly, FreeRTOS defines aliases whose exact width
+is chosen at build time. Two of them appear constantly:
 
-**BaseType_t:**
+- **`TickType_t`** counts RTOS ticks. Depending on `configUSE_16_BIT_TICKS`, it
+  is an unsigned 16-bit or 32-bit integer: 16 bits saves memory on small parts,
+  while 32 bits pushes the tick-counter overflow far into the future.
+- **`BaseType_t`** is the architecture's most efficient integer type, mapping to
+  16 bits on a 16-bit MCU and 32 bits on a 32-bit core. It is the natural return
+  type for functions that report a simple status or boolean.
 
-- Unsigned 16-bit type on 16-bit architecture
-- Unsigned 32-bit type on 32-bit architecture
+## Variable Prefixes
 
-## Variables Types
+Variables are prefixed with a letter naming their type, so the declaration and
+every later use carry that information inline:
 
-**Variables are prefixed with ther type:**
+- **`c`** — `char`
+- **`s`** — `short` / `uint16_t`
+- **`l`** — `long` / `int32_t`
+- **`x`** — `BaseType_t` and other non-standard types such as structures, task
+  handles, and queue handles
+- **`u`** — prepended for `unsigned`
+- **`p`** — prepended for a pointer
+- **`v`** — `void`
 
-- **c**: char
-- **s**: short/uint16_t
-- **l**: long/int32_t
-- **x**: BaseType_t and any other non-standard types (e.g structeres, task handlers, queue handles, etc).
-- **u**: unsigned
-- **p**: pointer
-- **v**: void
+The prefixes combine, so an `unsigned long` becomes `ul` and a pointer to `char`
+becomes `pc`.
 
 ## Function Names
 
-Functions are prefixed with both the type they return, and the file they are
-defined within.
+A function name is prefixed with both the type it returns and the file in which
+it is defined, in that order. The pattern reads like a compact signature:
 
-E.g:
-
-- `vTaskPrioritySet()` returns a void and is defined within *task.c*
-- `xQueueReceive()` returns a variable of type BaseType_t and is defined within *queue.c*
-- `pvTimerGetTimerID()` returns a pointer to void and is defined within *timers.c*
+- `vTaskPrioritySet()` returns `void` and lives in *tasks.c*.
+- `xQueueReceive()` returns a `BaseType_t` and lives in *queue.c*.
+- `pvTimerGetTimerID()` returns a `void *` and lives in *timers.c*.
 
 ## Macro Names
 
-- Macro in uppercase
-- Prefix in lowercase
-- Prefix indicates macro definition file
+Macros follow a complementary rule: the body is written in uppercase while a
+lowercase prefix marks the file that defines them. `portMAX_DELAY`, for example,
+comes from *portable.h*, while `taskENTER_CRITICAL()` comes from *task.h* and the
+configuration switch `configUSE_PREEMPTION` comes from *FreeRTOSConfig.h*. A
+handful of status constants recur throughout the API:
 
-port**MAX_DELAY** : located in portable.h
+| Macro | Value | Defined in |
+| --- | --- | --- |
+| `pdTRUE` | 1 | projdefs.h |
+| `pdFALSE` | 0 | projdefs.h |
+| `pdPASS` | 1 | projdefs.h |
+| `pdFAIL` | 0 | projdefs.h |
 
-Other examples:
-
-- taskENTER_CRITICAL() : task.h
-- pdTRUE : projdefs.h
-- configUSE_PREEMPTION : FreeRTOSConfig.h
-- errQUEUE_FULL : projdefs.h
-
-| Macro | Value |
-| --- | --- |
-| pdTRUE | 1 |
-| pdFALSE | 0 |
-| pdPASS | 1 |
-| pdFAIL | 0 |
-
+Error codes follow the same scheme, so `errQUEUE_FULL` announces itself as an
+error constant from *projdefs.h* the moment you read its name.
