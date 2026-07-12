@@ -4,6 +4,6 @@
 *.elf
 *.bin
 
-# worksapces
+# workspaces
 *.vscode*
 *.jdebug.user
