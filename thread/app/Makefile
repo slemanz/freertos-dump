@@ -1,5 +1,6 @@
 CC=arm-none-eabi-gcc
 TARGET=flash
+APP ?= main
 
 MACH=-mcpu=cortex-m4
 FLOAT=-mfloat-abi=hard
@@ -36,7 +37,7 @@ INCLUDES+= -I $(FREERTOS_DIR)/portable/GCC/ARM_CM4F
 # 				SOURCE FILES
 ############################################
 
-OBJS		+= $(BUILD_DIR)/main.o
+OBJS		+= $(BUILD_DIR)/$(APP).o
 OBJS		+= $(BUILD_DIR)/config.o
 OBJS		+= $(BUILD_DIR)/syscalls.o
 OBJS		+= $(BUILD_DIR)/startup.o
@@ -90,6 +91,12 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(FREERTOS_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $^
 	$(OBJCOPY) -O binary $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).bin
 	arm-none-eabi-size $(BUILD_DIR)/$(TARGET).elf
+
+main:
+	$(MAKE) all APP=main
+
+test_leds:
+	$(MAKE) all APP=test_leds
 
 load:
 	jlink flash.jlink
