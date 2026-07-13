@@ -95,11 +95,14 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(FREERTOS_OBJS)
 main:
 	$(MAKE) all APP=main
 
-test_leds:
-	$(MAKE) all APP=test_leds
-
 task_creation:
 	$(MAKE) all APP=task_creation
+
+tasks_leds:
+	$(MAKE) all APP=tasks_leds
+
+task_parameters:
+	$(MAKE) all APP=task_parameters
 
 load:
 	jlink flash.jlink
