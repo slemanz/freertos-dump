@@ -88,3 +88,8 @@ void vBlueLedControllerTask(void *pvParameters)
 This pattern is common when one task acts as a supervisor that brings the others
 online only once some precondition, a peripheral finishing its startup, say, has
 been met.
+
+## Apps
+
+1. Task Creation
+2. 

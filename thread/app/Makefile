@@ -98,6 +98,9 @@ main:
 test_leds:
 	$(MAKE) all APP=test_leds
 
+task_creation:
+	$(MAKE) all APP=task_creation
+
 load:
 	jlink flash.jlink
 
