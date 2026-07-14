@@ -1,3 +1,10 @@
+/*
+ * Example: multiple LED tasks.
+ * Three separate tasks, one per LED, each blinking at a different rate.
+ * Same priority, so the scheduler shares the CPU between them (round-robin),
+ * and every LED blinks independently.
+ */
+
 #include <stdio.h>
 #include "config.h"
 #include "driver_gpio.h"
@@ -5,10 +12,12 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+/* One dedicated task function per LED. */
 void vRedLedControllerTask(void *pvParameters);
 void vYellowLedControllerTask(void *pvParameters);
 void vGreenLedControllerTask(void *pvParameters);
 
+/* Profilers: counters to observe (via debugger) how often each task runs. */
 typedef uint32_t TaskProfiler;
 
 TaskProfiler RedTaskProfiler, YellowTaskProfiler, GreenTaskProfiler;
@@ -58,6 +67,9 @@ int main(void)
     }
 }
 
+/* Each task blinks its LED at a different rate, set by its vTaskDelay. */
+
+/* Red: toggles every 1000 ms -> slowest blink. */
 void vRedLedControllerTask(void *pvParameters)
 {
     led_init(GPIOB, GPIO_PIN_NO_3);
@@ -70,6 +82,7 @@ void vRedLedControllerTask(void *pvParameters)
     }
 }
 
+/* Yellow: toggles every 500 ms -> medium blink. */
 void vYellowLedControllerTask(void *pvParameters)
 {
     led_init(GPIOB, GPIO_PIN_NO_4);
@@ -82,6 +95,7 @@ void vYellowLedControllerTask(void *pvParameters)
     }
 }
 
+/* Green: toggles every 250 ms -> fastest blink. */
 void vGreenLedControllerTask(void *pvParameters)
 {
     led_init(GPIOB, GPIO_PIN_NO_5);
