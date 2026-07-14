@@ -5,15 +5,28 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#define LED_RED             GPIO_PIN_NO_3
-#define LED_YELLOW          GPIO_PIN_NO_4
-#define LED_GREEN           GPIO_PIN_NO_5
+#define LED_HIGH            GPIO_PIN_NO_3   // HIGH priority task
+#define LED_LOW             GPIO_PIN_NO_5   // LOW priority task
 
-void vLedControllerTask(void *pvParameters);
+/*
+ * Priorities: the HIGHER the number, the HIGHER the priority.
+ * The ready task with the highest priority always runs first (preemption).
+ */
+#define PRIORITY_HIGH       2
+#define PRIORITY_LOW        1
 
-static const uint8_t red_led    = LED_RED;
-static const uint8_t yellow_led = LED_YELLOW;
-static const uint8_t green_led  = LED_GREEN;
+void vHighPriorityTask(void *pvParameters);
+void vLowPriorityTask(void *pvParameters);
+
+/*
+ * Profilers: counters to observe (via debugger) how many times
+ * each task has run. The high priority task dominates the CPU.
+ */
+typedef uint32_t TaskProfiler;
+TaskProfiler HighTaskProfiler, LowTaskProfiler;
+
+static const uint8_t high_led = LED_HIGH;
+static const uint8_t low_led  = LED_LOW;
 
 static void led_init(GPIO_RegDef_t *pGPIOx, uint8_t pin)
 {
@@ -28,30 +41,22 @@ static void led_init(GPIO_RegDef_t *pGPIOx, uint8_t pin)
     GPIO_Init(&led);
 }
 
-
 int main(void)
 {
     config_app();
 
-    xTaskCreate(vLedControllerTask,
-                "Red Led Controller",
+    xTaskCreate(vHighPriorityTask,
+                "High Priority Task",
                 100,
-                (void *)&red_led,
-                1,
+                (void *)&high_led,
+                PRIORITY_HIGH,
                 NULL);
 
-    xTaskCreate(vLedControllerTask,
-                "Yellow Led Controller",
+    xTaskCreate(vLowPriorityTask,
+                "Low Priority Task",
                 100,
-                (void *)&yellow_led,
-                1,
-                NULL);
-
-    xTaskCreate(vLedControllerTask,
-                "Green Led Controller",
-                100,
-                (void *)&green_led,
-                1,
+                (void *)&low_led,
+                PRIORITY_LOW,
                 NULL);
 
     vTaskStartScheduler();
@@ -61,7 +66,13 @@ int main(void)
     }
 }
 
-void vLedControllerTask(void *pvParameters)
+/*
+ * HIGH priority task.
+ * While it is ready, it always runs instead of the low priority one.
+ * vTaskDelay puts the task into the "Blocked" state, yielding the CPU
+ * so that the low priority task can execute.
+ */
+void vHighPriorityTask(void *pvParameters)
 {
     uint8_t pin = *(const uint8_t *)pvParameters;
 
@@ -69,7 +80,27 @@ void vLedControllerTask(void *pvParameters)
 
     while(1)
     {
+        HighTaskProfiler++;
         GPIO_ToggleOutputPin(GPIOB, pin);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(200));
+    }
+}
+
+/*
+ * LOW priority task.
+ * Only runs during the windows in which the high priority task is
+ * blocked (inside its vTaskDelay).
+ */
+void vLowPriorityTask(void *pvParameters)
+{
+    uint8_t pin = *(const uint8_t *)pvParameters;
+
+    led_init(GPIOB, pin);
+
+    while(1)
+    {
+        LowTaskProfiler++;
+        GPIO_ToggleOutputPin(GPIOB, pin);
+        vTaskDelay(pdMS_TO_TICKS(800));
     }
 }

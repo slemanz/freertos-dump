@@ -94,3 +94,4 @@ been met.
 1. Task Creation
 2. Tasks Leds
 3. Task Parameters
+4. Task Priority
