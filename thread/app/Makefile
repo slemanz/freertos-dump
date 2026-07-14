@@ -104,6 +104,12 @@ tasks_leds:
 task_parameters:
 	$(MAKE) all APP=task_parameters
 
+task_priority:
+	$(MAKE) all APP=task_priority
+
+task_priority_runtime:
+	$(MAKE) all APP=task_priority_runtime
+
 load:
 	jlink flash.jlink
 
