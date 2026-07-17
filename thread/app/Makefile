@@ -113,6 +113,9 @@ task_priority_runtime:
 task_suspend:
 	$(MAKE) all APP=task_suspend
 
+task_resume:
+	$(MAKE) all APP=task_resume
+
 load:
 	jlink flash.jlink
 

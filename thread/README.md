@@ -96,3 +96,5 @@ been met.
 3. Task Parameters
 4. Task Priority
 5. Task Priority Runtime
+6. Task Suspend
+7. Task Resume
