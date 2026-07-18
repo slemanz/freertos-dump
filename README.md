@@ -1,4 +1,4 @@
-# FreeRTOS on Bare-Metal STM32
+# FreeRTOS Dump
 
 A Real-Time Operating System (RTOS) is, at heart, a resource manager. On a
 microcontroller with a single core, only one instruction stream can run at a

@@ -28,6 +28,7 @@ void config_drivers(void)
 {
     GPIO_Init_table(GPIO_ConfigTable, (sizeof(GPIO_ConfigTable)/sizeof(GPIO_ConfigTable[0])));
     UART_Init_table(UART_ConfigTable, (sizeof(UART_ConfigTable)/sizeof(UART_ConfigTable[0])));
+    UART_PeripheralControl(UART2, ENABLE);
     fpu_enable();
 }
 
@@ -39,4 +40,11 @@ void config_drivers(void)
 void config_app(void)
 {
     config_drivers();
+}
+
+// printf retarget
+extern int __io_putchar(int ch)
+{
+    UART_write(UART2, (uint8_t*)&ch, 1);
+    return ch;
 }

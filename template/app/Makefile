@@ -1,5 +1,6 @@
 CC=arm-none-eabi-gcc
 TARGET=flash
+APP ?= app1
 
 MACH=-mcpu=cortex-m4
 FLOAT=-mfloat-abi=hard
@@ -11,8 +12,10 @@ FREERTOS_DIR = ../../freertos
 LINKER= -T $(ROOT_DIR)/linkers/STM32F411.ld
 MAP_FILE= -Wl,-Map=$(BUILD_DIR)/$(TARGET).map
 
+DEFINES ?=
+
 CFLAGS= -c $(MACH) -mthumb $(FLOAT) -std=gnu99 -Wall -O0 -g \
-		--specs=nano.specs -ffunction-sections -fdata-sections
+		--specs=nano.specs -ffunction-sections -fdata-sections $(DEFINES)
 
 LDFLAGS = $(MACH) -mthumb $(FLOAT) --specs=nosys.specs $(LINKER) $(MAP_FILE) -g \
 			-Wl,--gc-sections -static --specs=nano.specs -Wl,--start-group -lc -lm \
@@ -36,7 +39,7 @@ INCLUDES+= -I $(FREERTOS_DIR)/portable/GCC/ARM_CM4F
 # 				SOURCE FILES
 ############################################
 
-OBJS		+= $(BUILD_DIR)/main.o
+OBJS		+= $(BUILD_DIR)/$(APP).o
 OBJS		+= $(BUILD_DIR)/config.o
 OBJS		+= $(BUILD_DIR)/syscalls.o
 OBJS		+= $(BUILD_DIR)/startup.o
@@ -90,6 +93,12 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(FREERTOS_OBJS)
 	$(CC) $(LDFLAGS) -o $@ $^
 	$(OBJCOPY) -O binary $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).bin
 	arm-none-eabi-size $(BUILD_DIR)/$(TARGET).elf
+
+app1:
+	$(MAKE) all APP=app1
+
+app2:
+	$(MAKE) all APP=app2
 
 load:
 	jlink flash.jlink
