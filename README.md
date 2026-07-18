@@ -69,6 +69,8 @@ In reading order:
   types you meet everywhere in the API.
 - [Thread Management](thread/README.md): creating tasks, starting the scheduler,
   and spawning tasks from within other tasks.
+- [Queue and Queueset Management](queue/README.md): passing data between tasks with
+  queues, and waiting on several of them at once with queue sets.
 - [Template](template/README.md): the bare-metal STM32F411 project skeleton the
   examples are built on, with drivers, linker, and build wired up.
 
