@@ -1,3 +1,10 @@
+/*
+ * Example: task priority and preemption.
+ * The scheduler always runs the highest priority task that is ready. Here
+ * a HIGH priority task preempts a LOW priority one whenever it is ready,
+ * and only lets the low task run while it is blocked inside vTaskDelay.
+ */
+
 #include <stdio.h>
 #include "config.h"
 #include "driver_gpio.h"
@@ -5,8 +12,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#define LED_HIGH            GPIO_PIN_NO_3   // HIGH priority task
-#define LED_LOW             GPIO_PIN_NO_5   // LOW priority task
+#define LED_HIGH            GPIO_PIN_NO_3   /* HIGH priority task */
+#define LED_LOW             GPIO_PIN_NO_5   /* LOW priority task */
 
 /*
  * Priorities: the HIGHER the number, the HIGHER the priority.
