@@ -93,7 +93,7 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(FREERTOS_OBJS)
 	arm-none-eabi-size $(BUILD_DIR)/$(TARGET).elf
 
 main:
-	$(MAKE) all APP=main
+	$(MAKE) all APP=task_creation
 
 task_creation:
 	$(MAKE) all APP=task_creation
@@ -121,6 +121,9 @@ task_delete:
 
 task_blocking:
 	$(MAKE) all APP=task_blocking
+
+task_periodic:
+	$(MAKE) all APP=task_periodic
 
 load:
 	jlink flash.jlink

@@ -7,3 +7,11 @@
 # workspaces
 *.vscode*
 *.jdebug.user
+
+# temporary
+
+temp.md
+temp0.md
+temp1.md
+temp2.md
+temp3.md
