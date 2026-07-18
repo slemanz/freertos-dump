@@ -12,8 +12,10 @@ FREERTOS_DIR = ../../freertos
 LINKER= -T $(ROOT_DIR)/linkers/STM32F411.ld
 MAP_FILE= -Wl,-Map=$(BUILD_DIR)/$(TARGET).map
 
+DEFINES ?=
+
 CFLAGS= -c $(MACH) -mthumb $(FLOAT) -std=gnu99 -Wall -O0 -g \
-		--specs=nano.specs -ffunction-sections -fdata-sections
+		--specs=nano.specs -ffunction-sections -fdata-sections $(DEFINES)
 
 LDFLAGS = $(MACH) -mthumb $(FLOAT) --specs=nosys.specs $(LINKER) $(MAP_FILE) -g \
 			-Wl,--gc-sections -static --specs=nano.specs -Wl,--start-group -lc -lm \
@@ -124,6 +126,10 @@ task_blocking:
 
 task_periodic:
 	$(MAKE) all APP=task_periodic
+
+task_idle_hook:
+	$(MAKE) clean
+	$(MAKE) all APP=task_idle_hook DEFINES=-DconfigUSE_IDLE_HOOK=1
 
 load:
 	jlink flash.jlink
