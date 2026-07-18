@@ -98,3 +98,4 @@ been met.
 5. Task Priority Runtime
 6. Task Suspend
 7. Task Resume
+8. Task Delete

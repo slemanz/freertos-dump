@@ -116,6 +116,9 @@ task_suspend:
 task_resume:
 	$(MAKE) all APP=task_resume
 
+task_delete:
+	$(MAKE) all APP=task_delete
+
 load:
 	jlink flash.jlink
 
