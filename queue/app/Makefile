@@ -97,6 +97,9 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(FREERTOS_OBJS)
 queue_basics:
 	$(MAKE) all APP=queue_basics
 
+queue_printf:
+	$(MAKE) all APP=queue_printf
+
 load:
 	jlink flash.jlink
 
