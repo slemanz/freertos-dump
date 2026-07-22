@@ -69,7 +69,16 @@ int main(void)
 
     if(xQueue != NULL)
     {
+        /* The receiver drives both LEDs, so init them here */
+        led_init(GPIOB, LED_RED);
+        led_init(GPIOB, LED_GREEN);
 
+        /* One function reused for two senders; the seed tells them apart. */
+        xTaskCreate(vSenderTask, "Sender Red",   100, (void*)&xRedSeed,   1, NULL);
+        xTaskCreate(vSenderTask, "Sender Green", 100, (void*)&xGreenSeed, 1, NULL);
+        xTaskCreate(vReceiverTask, "Receiver",   100, NULL,               1, NULL);
+
+        vTaskStartScheduler();
     }
 
     while(1)
@@ -78,12 +87,40 @@ int main(void)
     }
 }
 
+/* Reused by both senders. The seed passed as parameter says which one it is. */
 void vSenderTask(void *pvParameters)
 {
+    /* Take a private copy of the seed to work with */
+    Message_t msg = *(const Message_t *)pvParameters;
+    TickType_t xDelay;
 
+    /* Red sends faster than green, so its LED blinks faster. */
+    xDelay = (msg.id == SENDER_RED) ? pdMS_TO_TICKS(300) : pdMS_TO_TICKS(700);
+
+    while(1)
+    {
+        xQueueSend(xQueue, &msg, portMAX_DELAY);
+        msg.value++;
+        vTaskDelay(xDelay);
+    }
 }
 
+/* Reads structs from the shared queue and acts on the id field. */
 void vReceiverTask(void *pvParameters)
 {
-    
+    Message_t msg;
+
+    while(1)
+    {
+        if(xQueueReceive(xQueue, &msg, portMAX_DELAY) ==pdPASS)
+        {
+            if(msg.id == SENDER_RED)
+            {
+                GPIO_ToggleOutputPin(GPIOB, LED_RED);
+            }else
+            {
+                GPIO_ToggleOutputPin(GPIOB, LED_GREEN);
+            }
+        }
+    }
 }
