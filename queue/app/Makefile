@@ -106,6 +106,9 @@ queue_sync:
 queue_struct:
 	$(MAKE) all APP=queue_struct
 
+queue_set:
+	$(MAKE) all APP=queue_set
+
 load:
 	jlink flash.jlink
 
