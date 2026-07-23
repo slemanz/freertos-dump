@@ -71,6 +71,8 @@ In reading order:
   and spawning tasks from within other tasks.
 - [Queue and Queueset Management](queue/README.md): passing data between tasks with
   queues, and waiting on several of them at once with queue sets.
+- [Understanding Semaphores](semaphore/README.md): synchronizing tasks and guarding
+  shared resources with binary, counting, and mutex semaphores.
 - [Template](template/README.md): the bare-metal STM32F411 project skeleton the
   examples are built on, with drivers, linker, and build wired up.
 

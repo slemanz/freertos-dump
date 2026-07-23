@@ -1,0 +1,24 @@
+{
+	"folders": [
+        {
+            "path": "../app"
+        },
+        {
+            "path": "../drivers"
+        },
+        {
+            "path": "../linkers"
+        },
+        {
+            "path": "../../freertos"
+        },
+    ],
+    "settings": {
+        "C_Cpp.default.includePath": [
+            "${workspaceFolder}/../app/Inc",
+            "${workspaceFolder}/../drivers/Inc",
+            "${workspaceFolder}/../../freertos/include",
+            "${workspaceFolder}/../../freertos/portable/GCC/ARM_CM4F",
+        ],
+    }
+}
