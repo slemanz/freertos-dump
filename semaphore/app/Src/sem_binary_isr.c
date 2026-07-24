@@ -87,18 +87,62 @@ int main(void)
 {
     config_app();
 
+    setvbuf(stdout, NULL, _IONBF, 0);
+
+    xBinarySemaphore = xSemaphoreCreateBinary();
+
+    if(xBinarySemaphore != NULL)
+    {
+        button_init();
+
+        xTaskCreate(vButtonHandlerTask, "Button Handler", 200, NULL, 2, NULL);
+
+        vTaskStartScheduler();
+    }
+
     while(1)
     {
 
     }
 }
 
+/*
+ * The whole ISR: clear the hardware flag, hand the key to the task, ask for
+ * a context switch on the way out. No printf, no delay, no blocking.
+ */
 void EXTI0_IRQHandler(void)
 {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
+    /* Clear the EXTI pending bit or this interrupt re-fires forever. */
+    EXTI->PR |= (1 << BUTTON_PIN);
+
+    xSemaphoreGiveFromISR(xBinarySemaphore, &xHigherPriorityTaskWoken);
+
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
+/* The deferred half of the interrupt: here blocking IS allowed. */
 void vButtonHandlerTask(void *pvParameters)
 {
+    uint32_t ulPresses = 0;
 
+    led_init(GPIOB, LED_GREEN);
+
+    while(1)
+    {
+        if(xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdTRUE)
+        {
+            ulPresses++;
+            GPIO_ToggleOutputPin(GPIOB, LED_GREEN);
+            printf("Button pressed: %lu\r\n", (unsigned long)ulPresses);
+
+            /*
+             * Pretend the work takes a while. Presses that arrive during
+             * this window are LOST: a binary semaphore does not count.
+             * No debounce here: switch bounce can make one press count twice.
+             */
+            vTaskDelay(pdMS_TO_TICKS(2000));
+        }
+    }
 }
