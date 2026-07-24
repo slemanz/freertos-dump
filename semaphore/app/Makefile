@@ -97,6 +97,9 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(FREERTOS_OBJS)
 sem_binary:
 	$(MAKE) all APP=sem_binary
 
+sem_binary_isr:
+	$(MAKE) all APP=sem_binary_isr
+
 load:
 	jlink flash.jlink
 
