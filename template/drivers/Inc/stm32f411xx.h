@@ -557,14 +557,20 @@ typedef struct
 
 #define IRQ_NO_EXTI0 		6
 #define IRQ_NO_EXTI1 		7
-#define IRQ_NO_EXTI3 		8
-#define IRQ_NO_EXTI4 		9
-#define IRQ_NO_EXTI5 		10
+#define IRQ_NO_EXTI2 		8
+#define IRQ_NO_EXTI3 		9
+#define IRQ_NO_EXTI4 		10
 #define IRQ_NO_EXTI9_5 		23
+#define IRQ_NO_TIM2			28
+#define IRQ_NO_TIM3			29
+#define IRQ_NO_TIM4			30
+#define IRQ_NO_UART2		38
 #define IRQ_NO_EXTI15_10 	40
 
 /*
  * IRQ Priority levels
+ * only the upper NO_PR_BITS_IMPLEMENTED bits are implemented, so there are
+ * 16 levels: 0 is the most urgent, 15 the least
  */
 
 #define NVIC_IRQ_PRI0		0
