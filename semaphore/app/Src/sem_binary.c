@@ -48,18 +48,54 @@ int main(void)
 {
     config_app();
 
+    xBinarySemaphore = xSemaphoreCreateBinary();
+
+    if(xBinarySemaphore != NULL)
+    {
+        xTaskCreate(vGiverTask, "Giver", 100, NULL, 1, NULL);
+        xTaskCreate(vTakerTask, "Taker", 100, NULL, 2, NULL);
+
+        vTaskStartScheduler();
+    }
+
     while(1)
     {
 
     }
 }
 
+/* Every second, signals the taker by giving the semaphore. */
 void vGiverTask(void *pvParameters)
 {
+    led_init(GPIOB, LED_RED);
+
+    while(1)
+    {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        GPIO_ToggleOutputPin(GPIOB, LED_RED);
+
+        /* Hand the key over. Nobory "owns" a binary semaphore. */
+        xSemaphoreGive(xBinarySemaphore);
+    }
 
 }
 
+/**
+ * Has a felay of its own: it runs only when it manages to take the key.
+ * It is created at a HIGHER priority than the giver, so as soons as the
+ * semaphore is given it preempts the giver and runs immediately.
+ */
 void vTakerTask(void *pvParameters)
 {
-    
+    led_init(GPIOB, LED_GREEN);
+
+    while(1)
+    {
+        /* Blocked here (no CPU used) until the giver gives */
+        if(xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdTRUE)
+        {
+            GPIO_ToggleOutputPin(GPIOB, LED_GREEN);
+        }
+    }
 }
