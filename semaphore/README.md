@@ -124,3 +124,52 @@ the holder can run, finish, and give the mutex back promptly. The promotion last
 only until the mutex is released. A binary semaphore does *not* do this, which is
 exactly what `sem_priority_inversion.c` lets you observe by switching between the
 two.
+
+## Deadlock
+
+A deadlock, or *deadly embrace*, occurs when two tasks each hold a resource the
+other one needs, so neither can ever proceed. The classic recipe is two mutexes
+taken in opposite orders: task A takes mutex 1 then wants mutex 2, task B takes
+mutex 2 then wants mutex 1, and both block forever while the rest of the system
+carries on, apparently healthy. The usual cures are to impose a global order in
+which locks are always acquired, or to take them with a timeout and back off on
+failure. See `sem_deadlock.c`.
+
+## The Gatekeeper Task
+
+A gatekeeper task sidesteps the whole problem by giving a resource a single
+owner. Only the gatekeeper touches the resource directly; every other task that
+wants to use it sends a request through a queue and lets the gatekeeper do the
+work. Because there is exactly one accessor, no mutual exclusion is needed at
+all, so there is no lock to forget, no inversion, and no deadlock. It is the
+cleanest way to share something like a serial port. See `sem_gatekeeper.c`.
+
+## Apps
+
+Each app is a self-contained `main` that demonstrates one concept, watched on the
+board LEDs (red, yellow, green), on the serial port (UART2, 115200 8N1), or driven
+by the button on `PA0` and the potentiometer on `PA1`.
+
+1. [Working with Binary Semaphores](app/Src/sem_binary.c): a task blocks on an
+   empty binary semaphore until another task gives it, so the two run in lockstep
+   and the "created empty" behavior is visible on the LEDs.
+2. [Binary Semaphore from an ISR](app/Src/sem_binary_isr.c): the button on `PA0`
+   fires an EXTI interrupt that gives a semaphore, and a task deferred behind it
+   does the real work. Shows `xSemaphoreGiveFromISR`, `portYIELD_FROM_ISR`, and
+   the NVIC priority that `FromISR` calls require.
+3. [Working with a Mutex](app/Src/sem_mutex.c): two tasks print to the same serial
+   port; without the mutex their output interleaves into garbage, with it every
+   line comes out whole.
+4. [Working with Counting Semaphores](app/Src/sem_counting.c): the same button,
+   but each press increments a counting semaphore, so presses that arrive while
+   the worker is busy accumulate instead of being lost. The direct contrast with
+   app 2.
+5. [Priority Inversion and Inheritance](app/Src/sem_priority_inversion.c): a
+   three-task inversion measured in ticks and printed, with a single `#define`
+   switching between a binary semaphore (inversion) and a mutex (inheritance).
+6. [Deadlock](app/Src/sem_deadlock.c): two mutexes taken in opposite orders freeze
+   both tasks for good while a heartbeat LED proves the scheduler is fine, plus
+   the ordering fix.
+7. [The Gatekeeper Task](app/Src/sem_gatekeeper.c): one task owns the serial port
+   and every other task, including a potentiometer reader on `PA1`, prints by
+   sending messages through a queue.
