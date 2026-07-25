@@ -109,6 +109,9 @@ sem_counting:
 sem_priority_inversion:
 	$(MAKE) all APP=sem_priority_inversion
 
+sem_deadlock:
+	$(MAKE) all APP=sem_deadlock
+
 load:
 	jlink flash.jlink
 
