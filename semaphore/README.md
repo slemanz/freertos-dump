@@ -105,3 +105,22 @@ task that takes a mutex is the one that must give it back. A binary semaphore ha
 no owner and can legitimately be given by a task or interrupt that never took it,
 which is why signalling uses a semaphore and locking uses a mutex. See
 `sem_mutex.c`.
+
+## Priority Inversion and Priority Inheritance
+
+**Priority inversion** happens when a high-priority task is made to wait on a
+low-priority one. The high-priority task needs a resource the low-priority task
+is holding, so it blocks, and its effective priority becomes that of the task it
+is waiting for. It gets much worse when a *medium*-priority task that wants
+nothing at all preempts the low-priority holder: the holder cannot run, so it
+cannot release the resource, so the high-priority task waits on a task that
+outranks nothing it cares about. The delay is then bounded only by how long the
+medium task feels like running.
+
+**Priority inheritance** is the mitigation, and it is why a mutex is not just a
+binary semaphore. While a high-priority task is blocked on a mutex, the kernel
+temporarily raises the priority of the task holding it to match the waiter, so
+the holder can run, finish, and give the mutex back promptly. The promotion lasts
+only until the mutex is released. A binary semaphore does *not* do this, which is
+exactly what `sem_priority_inversion.c` lets you observe by switching between the
+two.
