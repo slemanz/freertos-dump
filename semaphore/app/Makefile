@@ -103,6 +103,9 @@ sem_binary_isr:
 sem_mutex:
 	$(MAKE) all APP=sem_mutex
 
+sem_counting:
+	$(MAKE) all APP=sem_counting
+
 load:
 	jlink flash.jlink
 
