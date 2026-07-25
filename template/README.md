@@ -8,7 +8,8 @@ to start a new experiment, or read it to see how the pieces below fit together.
 ## Layout
 
 - [`app/`](app) - the application itself: `main.c`, the `config` layer that
-  initializes the drivers, `FreeRTOSConfig.h` where the kernel is tuned, and the
+  initializes the drivers and holds the pin helpers (`led_init`, `button_init`)
+  the examples share, `FreeRTOSConfig.h` where the kernel is tuned, and the
   `Makefile` that builds the image.
 - [`drivers/`](drivers/README.md) - the bare-metal STM32F411 drivers the
   application runs on.
