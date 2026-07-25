@@ -25,19 +25,6 @@ void vDriftingTask(void *pvParameters);
 void vPeriodicTask(void *pvParameters);
 void vSecondPeriodicTask(void *pvParameters);
 
-static void led_init(GPIO_RegDef_t *pGPIOx, uint8_t pin)
-{
-    GPIO_PinConfig_t led;
-    led.pGPIOx = pGPIOx;
-    led.GPIO_PinNumber = pin;
-    led.GPIO_PinMode = GPIO_MODE_OUT;
-    led.GPIO_PinSpeed = GPIO_SPEED_FAST;
-    led.GPIO_PinOPType = GPIO_OP_TYPE_PP;
-    led.GPIO_PinPuPdControl = GPIO_NO_PUPD;
-    led.GPIO_PinAltFunMode = GPIO_PIN_NO_ALTFN;
-    GPIO_Init(&led);
-}
-
 /* Simulates work that takes a variable amount of time */
 static void do_some_work(void)
 {
