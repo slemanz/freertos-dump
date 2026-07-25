@@ -106,6 +106,9 @@ sem_mutex:
 sem_counting:
 	$(MAKE) all APP=sem_counting
 
+sem_priority_inversion:
+	$(MAKE) all APP=sem_priority_inversion
+
 load:
 	jlink flash.jlink
 
