@@ -64,3 +64,44 @@ equal to `configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY`, which is `5` in this
 project. After reset every interrupt sits at priority `0`, the highest, so an
 interrupt that has not had its priority lowered by hand will trip `configASSERT`
 and hang the moment it calls into the kernel. See `sem_binary_isr.c`.
+
+## Counting Semaphores
+
+A counting semaphore carries a counter instead of a flag. The count is the number
+of keys currently available, so it is the right tool when there are several
+equivalent instances of something, or when events arrive faster than they can be
+processed and none of them may be dropped. Each give increments the count, each
+take decrements it, and a task blocks only when the count is zero:
+
+```c
+/* max count, initial count */
+SemaphoreHandle_t xSemaphore = xSemaphoreCreateCounting( 10, 0 );
+```
+
+The two arguments are the maximum count and the initial count. For counting
+events you start at `0` and let the givers push it up; for managing a pool of
+resources you start the count at the size of the pool, so the first takers
+succeed immediately and the task that arrives when the pool is empty waits. See
+`sem_counting.c`.
+
+## Mutexes
+
+A mutex, short for *mutual exclusion*, is a binary semaphore with a different
+purpose and one extra behavior. It exists to let several tasks share one resource
+while guaranteeing that only one of them touches it at a time. It is created
+available, so the first task to take it succeeds, and it is used to bracket the
+critical section:
+
+```c
+SemaphoreHandle_t xMutex = xSemaphoreCreateMutex();
+
+xSemaphoreTake( xMutex, portMAX_DELAY );
+printf( "only one task at a time gets here\r\n" );
+xSemaphoreGive( xMutex );
+```
+
+The rule that distinguishes a mutex from a binary semaphore is ownership: the
+task that takes a mutex is the one that must give it back. A binary semaphore has
+no owner and can legitimately be given by a task or interrupt that never took it,
+which is why signalling uses a semaphore and locking uses a mutex. See
+`sem_mutex.c`.
