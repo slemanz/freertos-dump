@@ -50,6 +50,7 @@ DRIVERS		+= $(BUILD_DIR)/driver_gpio.o
 DRIVERS		+= $(BUILD_DIR)/driver_uart.o
 DRIVERS		+= $(BUILD_DIR)/driver_interrupt.o
 DRIVERS		+= $(BUILD_DIR)/driver_fpu.o
+DRIVERS		+= $(BUILD_DIR)/driver_adc.o
 
 FREERTOS_OBJS += $(BUILD_DIR)/croutine.o
 FREERTOS_OBJS += $(BUILD_DIR)/event_groups.o
@@ -111,6 +112,9 @@ sem_priority_inversion:
 
 sem_deadlock:
 	$(MAKE) all APP=sem_deadlock
+
+sem_gatekeeper:
+	$(MAKE) all APP=sem_gatekeeper
 
 load:
 	jlink flash.jlink
