@@ -75,6 +75,8 @@ In reading order:
   shared resources with binary, counting, and mutex semaphores.
 - [Software Timers](timer/README.md): running a callback after a delay or on a
   repeating period, without a dedicated task, through the timer service task.
+- [Interrupt Management](interrupt/README.md): handling hardware interrupts under
+  the RTOS, deferring the work to a task, and the interrupt-safe FromISR API.
 - [Template](template/README.md): the bare-metal STM32F411 project skeleton the
   examples are built on, with drivers, linker, and build wired up.
 
