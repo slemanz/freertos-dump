@@ -50,6 +50,7 @@ DRIVERS		+= $(BUILD_DIR)/driver_gpio.o
 DRIVERS		+= $(BUILD_DIR)/driver_uart.o
 DRIVERS		+= $(BUILD_DIR)/driver_interrupt.o
 DRIVERS		+= $(BUILD_DIR)/driver_fpu.o
+DRIVERS		+= $(BUILD_DIR)/driver_adc.o
 
 FREERTOS_OBJS += $(BUILD_DIR)/croutine.o
 FREERTOS_OBJS += $(BUILD_DIR)/event_groups.o
@@ -105,6 +106,9 @@ timer_id:
 
 timer_stop_runtime:
 	$(MAKE) all APP=timer_stop_runtime
+
+timer_change_period:
+	$(MAKE) all APP=timer_change_period
 
 load:
 	jlink flash.jlink

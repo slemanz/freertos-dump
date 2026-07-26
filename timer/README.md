@@ -98,3 +98,29 @@ void vBlinkCallback( TimerHandle_t xTimer )
 Receiving the handle is what lets one function serve several timers, and it is
 the hook for the timer ID described below. Keep the body small, and remember it
 runs in the daemon, not in the task that started the timer.
+
+## Controlling a Timer at Runtime
+
+A running timer is not fixed in place. From any task you can stop it, restart it,
+give it a new period, or ask whether it is currently running:
+
+- `xTimerStop` returns a running timer to the dormant state, so its callback
+  stops firing.
+- `xTimerStart` puts a dormant timer back into the running state.
+- `xTimerReset` restarts the countdown from zero; on a dormant timer it also
+  starts it. On a one-shot timer this is the key to an *inactivity* pattern: each
+  reset postpones the expiry, so the callback runs only once the timer has been
+  left alone for a full period.
+- `xTimerChangePeriod` sets a new period and, as a side effect, starts the timer
+  if it was dormant. It also restarts the countdown, which matters if you call it
+  often: re-issuing it on every loop pass would keep the timer from ever expiring,
+  so change the period only when the target value actually changes.
+- `xTimerIsTimerActive` reports whether a timer is currently running.
+
+`timer_stop_runtime.c` toggles an auto-reload timer on and off from a button,
+`timer_change_period.c` steers a blink rate from the potentiometer, and
+`timer_reset.c` uses the reset-on-activity pattern. Each of these commands also
+has a `FromISR` variant (`xTimerStartFromISR`, `xTimerChangePeriodFromISR`, and
+so on) for use inside an interrupt, and those follow the same rules as the
+semaphore module: the interrupt must first be given an NVIC priority numerically
+at or above `configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY`.
