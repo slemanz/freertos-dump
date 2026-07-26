@@ -73,6 +73,8 @@ In reading order:
   queues, and waiting on several of them at once with queue sets.
 - [Understanding Semaphores](semaphore/README.md): synchronizing tasks and guarding
   shared resources with binary, counting, and mutex semaphores.
+- [Software Timers](timer/README.md): running a callback after a delay or on a
+  repeating period, without a dedicated task, through the timer service task.
 - [Template](template/README.md): the bare-metal STM32F411 project skeleton the
   examples are built on, with drivers, linker, and build wired up.
 
