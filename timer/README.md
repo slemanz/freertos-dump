@@ -124,3 +124,48 @@ has a `FromISR` variant (`xTimerStartFromISR`, `xTimerChangePeriodFromISR`, and
 so on) for use inside an interrupt, and those follow the same rules as the
 semaphore module: the interrupt must first be given an NVIC priority numerically
 at or above `configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY`.
+
+## Identifying a Timer
+
+Because the callback is handed the timer's handle, a single callback can serve
+many timers as long as it can tell them apart. The timer ID is how it does so.
+Each timer stores one `void *` value, set as the fourth argument of
+`xTimerCreate` or later with `vTimerSetTimerID`, and the callback reads it back
+with `pvTimerGetTimerID`. A common trick is to store a small integer, such as the
+LED pin a timer owns, cast to and from the pointer:
+
+```c
+void vBlinkCallback( TimerHandle_t xTimer )
+{
+    uint8_t pin = ( uint8_t )( uintptr_t ) pvTimerGetTimerID( xTimer );
+    GPIO_ToggleOutputPin( GPIOB, pin );
+}
+```
+
+See `timer_id.c`, where three timers at three periods drive three LEDs through
+one callback.
+
+## Apps
+
+Each app is a self-contained `main` that demonstrates one concept, watched on the
+board LEDs (red, yellow, green), on the serial port (UART2, 115200 8N1), or driven
+by the button on `PA0` and the potentiometer on `PA1`.
+
+1. [Working with Software Timers](app/Src/timer_basics.c): a single auto-reload
+   timer blinks an LED from its callback, with no user task, showing that a timer
+   runs on the kernel's service task.
+2. [One-Shot vs Auto-Reload](app/Src/timer_oneshot.c): an auto-reload timer blinks
+   one LED forever while a one-shot timer changes another exactly once, making the
+   two kinds visible at the same time.
+3. [One Callback, Many Timers](app/Src/timer_id.c): three timers at different
+   periods share one callback that reads `pvTimerGetTimerID` to decide which LED
+   to toggle.
+4. [Stopping a Timer at Runtime](app/Src/timer_stop_runtime.c): a button on `PA0`
+   toggles an auto-reload timer between running and stopped with `xTimerStop`,
+   `xTimerStart`, and `xTimerIsTimerActive`.
+5. [Changing the Period at Runtime](app/Src/timer_change_period.c): the
+   potentiometer on `PA1` drives a blink rate through `xTimerChangePeriod`, with
+   the period pushed only when the knob moves.
+6. [One-Shot Inactivity Detector](app/Src/timer_reset.c): each button press resets
+   a one-shot timer and lights an LED, and the callback turns it off once the
+   button has been idle for the full period, the shape of a debounce.
