@@ -103,6 +103,9 @@ timer_oneshot:
 timer_id:
 	$(MAKE) all APP=timer_id
 
+timer_stop_runtime:
+	$(MAKE) all APP=timer_stop_runtime
+
 load:
 	jlink flash.jlink
 
