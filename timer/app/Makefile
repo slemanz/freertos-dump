@@ -100,6 +100,9 @@ timer_basics:
 timer_oneshot:
 	$(MAKE) all APP=timer_oneshot
 
+timer_id:
+	$(MAKE) all APP=timer_id
+
 load:
 	jlink flash.jlink
 

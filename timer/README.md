@@ -45,3 +45,56 @@ newly created timer is dormant. Starting, resetting, or changing the period of a
 timer moves it to running. An auto-reload timer stays running across each expiry;
 a one-shot timer returns to dormant when it expires. Either kind returns to
 dormant when it is explicitly stopped.
+
+## Creating and Starting a Timer
+
+A timer is created with `xTimerCreate`, which takes five arguments and returns a
+handle, or `NULL` if it could not be allocated:
+
+```c
+TimerHandle_t xTimerCreate( const char *const pcTimerName,
+                            TickType_t xTimerPeriodInTicks,
+                            BaseType_t xAutoReload,
+                            void *pvTimerID,
+                            TimerCallbackFunction_t pxCallbackFunction );
+```
+
+`pcTimerName` is a debug-only label. `xTimerPeriodInTicks` is the period, which
+must be greater than zero and is most readable through `pdMS_TO_TICKS()`.
+`xAutoReload` picks the kind: `pdTRUE` for auto-reload, `pdFALSE` for one-shot.
+`pvTimerID` is an arbitrary pointer stored with the timer, discussed below.
+`pxCallbackFunction` is the function to run on expiry.
+
+Creation only makes the timer; it starts dormant. `xTimerStart` moves it to the
+running state. Because starting is really a command posted to the daemon's queue,
+you can call it in `main` before the scheduler runs, and it simply takes effect
+once the scheduler starts:
+
+```c
+xBlinkTimer = xTimerCreate( "Blink", pdMS_TO_TICKS( 500 ), pdTRUE, NULL, vBlinkCallback );
+
+if( xBlinkTimer != NULL )
+{
+    xTimerStart( xBlinkTimer, 0 );
+    vTaskStartScheduler();
+}
+```
+
+See `timer_basics.c`, which blinks an LED entirely from the callback, with no
+user task at all.
+
+## The Callback Function
+
+Every callback has the same fixed prototype: it returns nothing and takes the
+handle of the timer that expired.
+
+```c
+void vBlinkCallback( TimerHandle_t xTimer )
+{
+    GPIO_ToggleOutputPin( GPIOB, LED_RED );
+}
+```
+
+Receiving the handle is what lets one function serve several timers, and it is
+the hook for the timer ID described below. Keep the body small, and remember it
+runs in the daemon, not in the task that started the timer.
