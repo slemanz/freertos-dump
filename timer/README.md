@@ -29,3 +29,19 @@ timer command with a non-zero block time from inside itself, because blocking th
 daemon stalls every other timer. Second, all callbacks run at the daemon's
 priority, so a callback does not preempt a higher-priority task; it is scheduled
 like any other work.
+
+## One-Shot and Auto-Reload Timers
+
+Every timer is one of two kinds, chosen at creation. An **auto-reload** timer
+restarts itself the moment it expires, so its callback runs periodically at a
+fixed frequency forever. A **one-shot** timer runs its callback exactly once and
+then stops; it does not restart itself, and it will only run again if the
+application restarts it by hand. That single difference is the whole distinction,
+and `timer_oneshot.c` shows the two side by side.
+
+The behavior is easiest to picture as two states. A timer that is not counting is
+**dormant**; a timer that is counting toward its next expiry is **running**. A
+newly created timer is dormant. Starting, resetting, or changing the period of a
+timer moves it to running. An auto-reload timer stays running across each expiry;
+a one-shot timer returns to dormant when it expires. Either kind returns to
+dormant when it is explicitly stopped.

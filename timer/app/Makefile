@@ -97,6 +97,9 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(FREERTOS_OBJS)
 timer_basics:
 	$(MAKE) all APP=timer_basics
 
+timer_oneshot:
+	$(MAKE) all APP=timer_oneshot
+
 load:
 	jlink flash.jlink
 
