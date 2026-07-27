@@ -122,3 +122,25 @@ in the daemon's context, free to do what an ISR cannot. It is a tidy way to funn
 many interrupt sources through one deferred-work task. It needs
 `INCLUDE_xTimerPendFunctionCall` and `configUSE_TIMERS`, both `1` here. See
 `deferred_pend.c`.
+
+## Apps
+
+Each app is a self-contained `main` that demonstrates one concept, watched on the
+board LEDs (red, yellow, green) and driven over the serial port (UART2, 115200
+8N1). Open a serial terminal and type.
+
+1. [UART Polling](app/Src/uart_polling.c): a task busy-waits on the RXNE flag to
+   receive bytes, and starves a heartbeat task in the process, showing why
+   polling an interrupt source is wasteful.
+2. [Deferred Handling with a Queue](app/Src/uart_interrupt.c): the RXNE interrupt
+   posts each byte to a task through `xQueueSendFromISR`, so the CPU is free and
+   the heartbeat keeps blinking.
+3. [Receiving a Packet](app/Src/uart_packet.c): the ISR assembles incoming bytes
+   into a line and ships the whole packet to a task when it sees an end-of-line
+   marker, accepting CR, LF or CRLF so any terminal works.
+4. [Task Notification](app/Src/uart_task_notify.c): the same deferral without a
+   queue or semaphore, the ISR notifying the task directly with the byte carried
+   in the notification value.
+5. [Centralised Deferral](app/Src/deferred_pend.c): the ISR uses
+   `xTimerPendFunctionCallFromISR` to run its work in the timer daemon, so the
+   program needs no handler task of its own.
