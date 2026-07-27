@@ -1,6 +1,6 @@
 CC=arm-none-eabi-gcc
 TARGET=flash
-APP ?= app1
+APP ?= eg_basics
 
 MACH=-mcpu=cortex-m4
 FLOAT=-mfloat-abi=hard
@@ -94,11 +94,11 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(FREERTOS_OBJS)
 	$(OBJCOPY) -O binary $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).bin
 	arm-none-eabi-size $(BUILD_DIR)/$(TARGET).elf
 
-app1:
-	$(MAKE) all APP=app1
+eg_basics:
+	$(MAKE) all APP=eg_basics
 
-app2:
-	$(MAKE) all APP=app2
+eg_wait_all:
+	$(MAKE) all APP=eg_wait_all
 
 load:
 	jlink flash.jlink
