@@ -57,3 +57,43 @@ void USART2_IRQHandler( void )
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 ```
+
+## Interrupt Priorities and the configASSERT Trap
+
+There is a hardware rule that catches everyone. FreeRTOS only tolerates `FromISR`
+calls from interrupts whose priority is numerically greater than or equal to
+`configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY`, which is `5` in this project.
+After reset every interrupt sits at priority `0`, the most urgent, so an interrupt
+that talks to the kernel without having its priority lowered first will trip
+`configASSERT` and hang the moment it calls in.
+
+The cure is to set the priority before enabling the interrupt. The driver exposes
+both steps, and the order matters:
+
+```c
+UART_InterruptConfig( UART2, UART_INTERRUPT_RXNEIE, ENABLE );
+interrupt_SetPriority( IRQ_NO_UART2, 6 );   /* >= 5: lower the urgency first */
+interrupt_Config( IRQ_NO_UART2, ENABLE );   /* then let it fire */
+```
+
+## Deferred Interrupt Handling
+
+The single most important pattern in this chapter is *deferred interrupt
+handling*: the ISR does the bare minimum and hands the real work to a task. The
+ISR reads the byte, passes it on, and returns in a few microseconds; a task,
+blocked and costing nothing until then, wakes up and does the processing at task
+priority, where it is free to block, print, or take a mutex. A queue is the
+natural carrier because it both signals the task and delivers the data, and it
+buffers, so a short burst of bytes is not lost if the task is briefly busy. See
+`uart_interrupt.c`, where the heartbeat LED keeps blinking because nothing spins.
+
+## Assembling a Packet
+
+Real protocols are messages, not lone characters, and the ISR is a good place to
+assemble one. It keeps a private buffer across calls and appends each byte until
+it sees an end-of-line marker, a carriage return or a newline, at which point it
+ships the finished line to a task and starts the next one. Passing the completed
+packet *by value* through the queue means the ISR and the task never share the
+buffer, so there is no race to reason about. See `uart_packet.c`; typing a line
+in any serial terminal and pressing Enter delivers a packet, whatever line ending
+the terminal sends.

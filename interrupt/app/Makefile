@@ -100,6 +100,9 @@ uart_polling:
 uart_interrupt:
 	$(MAKE) all APP=uart_interrupt
 
+uart_packet:
+	$(MAKE) all APP=uart_packet
+
 load:
 	jlink flash.jlink
 
