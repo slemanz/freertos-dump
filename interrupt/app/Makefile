@@ -106,6 +106,9 @@ uart_packet:
 uart_task_notify:
 	$(MAKE) all APP=uart_task_notify
 
+deferred_pend:
+	$(MAKE) all APP=deferred_pend
+
 load:
 	jlink flash.jlink
 
