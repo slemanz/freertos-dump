@@ -26,3 +26,34 @@ data is arriving, and at a high priority it will starve every other task. This i
 the same busy-wait problem as in the thread chapter, and it is exactly what
 interrupts remove: the CPU does other useful work, or nothing at all, until the
 byte actually arrives. See `uart_polling.c`.
+
+## The Interrupt-Safe API
+
+FreeRTOS splits its API in two. Ordinary functions such as `xQueueSend` may only
+be called from a task; calling them from an ISR corrupts the kernel. For use
+inside an interrupt there is a parallel set of functions whose names end in
+`FromISR` — `xQueueSendFromISR`, `xSemaphoreGiveFromISR`, `xTaskNotifyFromISR`,
+and so on. An ISR may call *only* these.
+
+The `FromISR` functions take one extra argument, a pointer to a
+`BaseType_t xHigherPriorityTaskWoken`, which the call sets to `pdTRUE` if it
+unblocked a task more important than the one the interrupt suspended. You pass
+that flag to `portYIELD_FROM_ISR` at the end of the ISR, and if it is set the
+scheduler switches to the woken task as the interrupt returns, instead of waiting
+for the next tick:
+
+```c
+void USART2_IRQHandler( void )
+{
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    uint8_t ucByte;
+
+    if( UART_GetFlagStatus( UART2, UART_FLAG_RXNE ) == FLAG_SET )
+    {
+        ucByte = UART_read_byte( UART2 );
+        xQueueSendFromISR( xRxQueue, &ucByte, &xHigherPriorityTaskWoken );
+    }
+
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+}
+```

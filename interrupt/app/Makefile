@@ -97,6 +97,9 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(FREERTOS_OBJS)
 uart_polling:
 	$(MAKE) all APP=uart_polling
 
+uart_interrupt:
+	$(MAKE) all APP=uart_interrupt
+
 load:
 	jlink flash.jlink
 
