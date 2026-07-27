@@ -77,6 +77,8 @@ In reading order:
   repeating period, without a dedicated task, through the timer service task.
 - [Interrupt Management](interrupt/README.md): handling hardware interrupts under
   the RTOS, deferring the work to a task, and the interrupt-safe FromISR API.
+- [Understanding Event Groups](eventgroup/README.md): waiting on combinations of
+  event bits so tasks can synchronize on several conditions at once.
 - [Template](template/README.md): the bare-metal STM32F411 project skeleton the
   examples are built on, with drivers, linker, and build wired up.
 
