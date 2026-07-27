@@ -103,6 +103,9 @@ uart_interrupt:
 uart_packet:
 	$(MAKE) all APP=uart_packet
 
+uart_task_notify:
+	$(MAKE) all APP=uart_task_notify
+
 load:
 	jlink flash.jlink
 

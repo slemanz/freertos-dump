@@ -97,3 +97,28 @@ packet *by value* through the queue means the ISR and the task never share the
 buffer, so there is no race to reason about. See `uart_packet.c`; typing a line
 in any serial terminal and pressing Enter delivers a packet, whatever line ending
 the terminal sends.
+
+## Task Notifications
+
+When all you need is to unblock one specific task, a full queue or semaphore is
+more than the job requires. A *task notification* is a lighter, faster channel
+built into every task: the ISR calls `xTaskNotifyFromISR` with the target task's
+handle, and the task waits with `xTaskNotifyWait`. No separate kernel object is
+allocated. A notification even carries a 32-bit value, so it can deliver the
+received byte directly. The trade-off is that it does not queue: with
+`eSetValueWithOverwrite`, a second notification arriving before the task runs
+overwrites the first. Notifications are ideal for signalling; reach for a queue
+when every item must be kept. Task notifications are on by default
+(`configUSE_TASK_NOTIFICATIONS`). See `uart_task_notify.c`.
+
+## Centralised Deferral
+
+Sometimes you would rather not create a dedicated handler task at all. The
+`xTimerPendFunctionCall` family lets an ISR ask the timer service task, the daemon
+from the previous chapter, to run an ordinary function on its behalf a moment
+later. From an interrupt you use `xTimerPendFunctionCallFromISR`, passing a
+function together with one pointer and one 32-bit argument; the function then runs
+in the daemon's context, free to do what an ISR cannot. It is a tidy way to funnel
+many interrupt sources through one deferred-work task. It needs
+`INCLUDE_xTimerPendFunctionCall` and `configUSE_TIMERS`, both `1` here. See
+`deferred_pend.c`.
