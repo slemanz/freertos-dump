@@ -106,6 +106,9 @@ eg_wait_any:
 eg_sync:
 	$(MAKE) all APP=eg_sync
 
+eg_isr:
+	$(MAKE) all APP=eg_isr
+
 # ctrl + a -> crtl + x (to exit)
 terminal:
 	picocom -b 115200 /dev/ttyUSB0
