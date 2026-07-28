@@ -79,6 +79,10 @@ In reading order:
   the RTOS, deferring the work to a task, and the interrupt-safe FromISR API.
 - [Understanding Event Groups](eventgroup/README.md): waiting on combinations of
   event bits so tasks can synchronize on several conditions at once.
+- [Understanding Task Notifications](notification/README.md): signalling a task
+  directly with no separate object, the fast, RAM-cheap alternative to semaphores.
+- [Understanding the Scheduler](scheduler/README.md): how the kernel chooses which
+  task runs, through priorities, preemption, time slicing, and the tick.
 - [Template](template/README.md): the bare-metal STM32F411 project skeleton the
   examples are built on, with drivers, linker, and build wired up.
 
