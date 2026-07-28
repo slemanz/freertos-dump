@@ -97,6 +97,12 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(FREERTOS_OBJS)
 notify_basics:
 	$(MAKE) all APP=notify_basics
 
+notify_value:
+	$(MAKE) all APP=notify_value
+
+terminal:
+	picocom -b 115200 /dev/ttyUSB0
+
 load:
 	jlink flash.jlink
 
