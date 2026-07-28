@@ -100,6 +100,13 @@ eg_basics:
 eg_wait_all:
 	$(MAKE) all APP=eg_wait_all
 
+eg_wait_any:
+	$(MAKE) all APP=eg_wait_any
+
+# ctrl + a -> crtl + x (to exit)
+terminal:
+	picocom -b 115200 /dev/ttyUSB0
+
 load:
 	jlink flash.jlink
 
