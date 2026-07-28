@@ -103,6 +103,9 @@ eg_wait_all:
 eg_wait_any:
 	$(MAKE) all APP=eg_wait_any
 
+eg_sync:
+	$(MAKE) all APP=eg_sync
+
 # ctrl + a -> crtl + x (to exit)
 terminal:
 	picocom -b 115200 /dev/ttyUSB0
