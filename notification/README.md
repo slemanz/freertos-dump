@@ -1,29 +1,27 @@
-# Project Template
+# Understanding Task Notifications
 
-This is the bare-metal STM32F411 project the rest of the repository is built on:
-a minimal but complete skeleton that boots the chip, brings up the clocks and
-drivers, links FreeRTOS in, and hands control to a single example task. Copy it
-to start a new experiment, or read it to see how the pieces below fit together.
+Every synchronization tool so far, semaphores, queues, event groups, works through
+a separate kernel object that both sides refer to. A *task notification* removes
+that middleman: it lets one task signal another, or send it a value, **directly**.
+Each task is born with one notification built in, so nothing is allocated, and the
+result is the fastest and most memory-efficient way for two tasks to communicate.
+The runnable examples live under [`app/Src/`](app/Src/), one file per concept, and
+are built on the project skeleton described under [Template](../template/README.md).
 
-## Layout
+Notifications are enabled by `configUSE_TASK_NOTIFICATIONS`, which defaults to `1`,
+and the API lives in `task.h` with no separate header.
 
-- [`app/`](app) - the application itself: `main.c`, the `config` layer that
-  initializes the drivers and holds the pin helpers (`led_init`, `button_init`)
-  the examples share, `FreeRTOSConfig.h` where the kernel is tuned, and the
-  `Makefile` that builds the image.
-- [`drivers/`](drivers/README.md) - the bare-metal STM32F411 drivers the
-  application runs on.
-- [`linkers/`](linkers) - the linker script and startup code that place the image
-  in flash and bring the C runtime up before `main`.
-- [workspace files](workspaces) - editor and debugger configuration for the
-  project.
+## What a Notification Is
 
-## Building
+A notification is a per-task state with two parts: a **notification value**, a
+single 32-bit word, and a **pending flag**. When a task is notified, its state
+becomes *pending*; when the task reads the notification, the state returns to *not
+pending*. Because the value is a full 32-bit word, a notification can act as a
+simple signal, a small integer, a counter, or a set of bits, depending on how you
+send and read it. That flexibility is why one primitive can replace so many
+others.
 
-The firmware is built from [`app/`](app) with its `Makefile`:
-
-```sh
-make        # compile and link the firmware image
-make load   # flash the image to the board over J-Link
-make clean  # remove build artifacts
-```
+The savings are real. To pass a signal through a semaphore, the kernel allocates a
+semaphore; through a queue, it allocates a queue and copies data in and out. A
+notification needs none of that, and updating it is a direct operation on the
+target task, which is why it is both faster and lighter.
