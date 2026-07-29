@@ -106,6 +106,9 @@ notify_counting:
 notify_bits:
 	$(MAKE) all APP=notify_bits
 
+notify_isr:
+	$(MAKE) all APP=notify_isr
+
 terminal:
 	picocom -b 115200 /dev/ttyUSB0
 
