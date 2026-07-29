@@ -100,6 +100,9 @@ notify_basics:
 notify_value:
 	$(MAKE) all APP=notify_value
 
+notify_counting:
+	$(MAKE) all APP=notify_counting
+
 terminal:
 	picocom -b 115200 /dev/ttyUSB0
 
