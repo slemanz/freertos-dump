@@ -82,7 +82,8 @@ multi-line output is kept whole.
 
 Each app is a self-contained `main` that demonstrates one concept, watched on the
 board LEDs (red, yellow, green) and on the serial port (UART2, 115200 8N1). Build
-each one with its own make target (see the table at the top of `temp.md`), which
+each one with its own make target, named after the file (`make
+sched_preempt_only`, and so on), which
 passes the right scheduler configuration as a `-D` define; there is no
 `FreeRTOSConfig.h` to edit by hand.
 

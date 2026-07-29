@@ -65,25 +65,25 @@ complex system stay readable while the kernel handles the concurrency underneath
 
 In reading order:
 
-- [Introduction](intro/README.md): the FreeRTOS naming conventions and core data
+- [Introduction](intro): the FreeRTOS naming conventions and core data
   types you meet everywhere in the API.
-- [Thread Management](thread/README.md): creating tasks, starting the scheduler,
+- [Thread Management](thread): creating tasks, starting the scheduler,
   and spawning tasks from within other tasks.
-- [Queue and Queueset Management](queue/README.md): passing data between tasks with
+- [Queue and Queueset Management](queue): passing data between tasks with
   queues, and waiting on several of them at once with queue sets.
-- [Understanding Semaphores](semaphore/README.md): synchronizing tasks and guarding
+- [Understanding Semaphores](semaphore): synchronizing tasks and guarding
   shared resources with binary, counting, and mutex semaphores.
-- [Software Timers](timer/README.md): running a callback after a delay or on a
+- [Software Timers](timer): running a callback after a delay or on a
   repeating period, without a dedicated task, through the timer service task.
-- [Interrupt Management](interrupt/README.md): handling hardware interrupts under
+- [Interrupt Management](interrupt): handling hardware interrupts under
   the RTOS, deferring the work to a task, and the interrupt-safe FromISR API.
-- [Understanding Event Groups](eventgroup/README.md): waiting on combinations of
+- [Understanding Event Groups](eventgroup): waiting on combinations of
   event bits so tasks can synchronize on several conditions at once.
-- [Understanding Task Notifications](notification/README.md): signalling a task
+- [Understanding Task Notifications](notification): signalling a task
   directly with no separate object, the fast, RAM-cheap alternative to semaphores.
-- [Understanding the Scheduler](scheduler/README.md): how the kernel chooses which
+- [Understanding the Scheduler](scheduler): how the kernel chooses which
   task runs, through priorities, preemption, time slicing, and the tick.
-- [Template](template/README.md): the bare-metal STM32F411 project skeleton the
+- [Template](template): the bare-metal STM32F411 project skeleton the
   examples are built on, with drivers, linker, and build wired up.
 
 ---
