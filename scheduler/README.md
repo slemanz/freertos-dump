@@ -1,29 +1,16 @@
-# Project Template
+# Understanding the Scheduler
 
-This is the bare-metal STM32F411 project the rest of the repository is built on:
-a minimal but complete skeleton that boots the chip, brings up the clocks and
-drivers, links FreeRTOS in, and hands control to a single example task. Copy it
-to start a new experiment, or read it to see how the pieces below fit together.
+The scheduler is the routine at the heart of the kernel that decides which
+Ready task moves into the Running state, and when. Everything else in FreeRTOS,
+tasks, priorities, blocking, exists so the scheduler can make that decision
+predictably. This chapter looks at the rules it follows and, crucially, at the
+few configuration switches that change them, because the scheduler's behavior
+*is* its configuration. The runnable examples live under [`app/Src/`](app/Src/),
+one file per concept, and are built on the project skeleton described under
+[Template](../template/README.md).
 
-## Layout
-
-- [`app/`](app) - the application itself: `main.c`, the `config` layer that
-  initializes the drivers and holds the pin helpers (`led_init`, `button_init`)
-  the examples share, `FreeRTOSConfig.h` where the kernel is tuned, and the
-  `Makefile` that builds the image.
-- [`drivers/`](drivers/README.md) - the bare-metal STM32F411 drivers the
-  application runs on.
-- [`linkers/`](linkers) - the linker script and startup code that place the image
-  in flash and bring the C runtime up before `main`.
-- [workspace files](workspaces) - editor and debugger configuration for the
-  project.
-
-## Building
-
-The firmware is built from [`app/`](app) with its `Makefile`:
-
-```sh
-make        # compile and link the firmware image
-make load   # flash the image to the board over J-Link
-make clean  # remove build artifacts
-```
+Unlike the other chapters, several examples here require editing
+`FreeRTOSConfig.h` and rebuilding. This project ships with
+`configUSE_PREEMPTION` set to `1` and no `configUSE_TIME_SLICING` line, so it
+defaults to `1`: prioritized, preemptive, time-sliced. The tick runs at 1000 Hz,
+so a time slice is one millisecond.

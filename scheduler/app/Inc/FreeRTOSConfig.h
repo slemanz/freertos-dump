@@ -7,7 +7,14 @@
 #define configENABLE_FPU                         0
 #define configENABLE_MPU                         0
 
+#ifndef configUSE_PREEMPTION /* config by -D */
 #define configUSE_PREEMPTION                     1
+#endif
+
+#ifndef configUSE_TIME_SLICING /* config by -D */
+#define configUSE_TIME_SLICING                   1
+#endif
+
 #define configSUPPORT_STATIC_ALLOCATION          0
 #define configSUPPORT_DYNAMIC_ALLOCATION         1
 #define configUSE_IDLE_HOOK                      0

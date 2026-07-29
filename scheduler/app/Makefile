@@ -97,8 +97,27 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJS) $(DRIVERS) $(FREERTOS_OBJS)
 app1:
 	$(MAKE) all APP=app1
 
-app2:
-	$(MAKE) all APP=app2
+# Each example is built with its own scheduler configuration, passed as a -D
+# define that overrides the #ifndef default in FreeRTOSConfig.h. clean runs
+# first so the whole kernel (tasks.o) is rebuilt with the new setting.
+sched_preempt_only:
+	$(MAKE) clean
+	$(MAKE) all APP=sched_preempt_only DEFINES=-DconfigUSE_TIME_SLICING=0
+
+sched_timeslicing:
+	$(MAKE) clean
+	$(MAKE) all APP=sched_timeslicing DEFINES=-DconfigUSE_TIME_SLICING=1
+
+sched_cooperative:
+	$(MAKE) clean
+	$(MAKE) all APP=sched_cooperative DEFINES=-DconfigUSE_PREEMPTION=0
+
+sched_suspend:
+	$(MAKE) clean
+	$(MAKE) all APP=sched_suspend
+
+terminal:
+	picocom -b 115200 /dev/ttyUSB0
 
 load:
 	jlink flash.jlink
