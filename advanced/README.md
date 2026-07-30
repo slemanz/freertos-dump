@@ -98,3 +98,38 @@ control block. Nothing is allocated at runtime, every byte is visible at link
 time, and allocation cannot fail, which is why safety-critical projects often
 forbid the dynamic API outright.
 
+## Hook Functions
+
+Hooks are functions with fixed names that the application chooses to provide
+and the kernel calls at defined moments; each is enabled by a switch in
+`FreeRTOSConfig.h`. The two everyday ones, the idle hook and the tick hook,
+were introduced in [Thread Management](../thread/README.md). The two that
+remain are error hooks, and a dump is exactly where they belong, because both
+catch failures that are otherwise silent.
+
+The **malloc failed hook** answers the question of what happens when the heap
+runs dry. Without it, a failed `pvPortMalloc` simply makes the API call fail,
+`xTaskCreate` returns `errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY`, and a program
+that does not check return values limps on missing a task. With
+`configUSE_MALLOC_FAILED_HOOK` set to 1, the kernel instead calls
+`vApplicationMallocFailedHook()` at the moment of failure, one place to trap,
+log, or halt.
+
+The **stack overflow hook** catches the classic embedded failure of a task
+outgrowing its stack. `configCHECK_FOR_STACK_OVERFLOW` selects the detection
+method: 1 checks the task's stack pointer at each context switch out, cheap
+but blind to overflows that grow and shrink between switches; 2 additionally
+fills the stack with a known pattern at creation and checks that its last 16
+bytes are intact, slower but far harder to slip past. Either way the kernel
+calls `vApplicationStackOverflowHook(xTask, pcTaskName)` with the offender's
+handle and name. By then the damage is done, adjacent memory may already be
+corrupt, so treat it as a development aid, not a recovery path. Its
+constructive partner is `uxTaskGetStackHighWaterMark`, which reports how close
+a task has ever come to the bottom of its stack; measure with a generous
+stack, then trim with a margin.
+
+A third, rarer hook rounds out the set: with
+`configUSE_DAEMON_TASK_STARTUP_HOOK` set to 1, the kernel calls
+`vApplicationDaemonTaskStartupHook()` once, when the timer service task first
+runs, a convenient spot for initialization that must wait until the scheduler
+is up.
