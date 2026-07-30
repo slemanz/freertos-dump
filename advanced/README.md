@@ -50,3 +50,51 @@ disabling them globally. Interrupts above that threshold never feel the
 kernel's critical sections but must not call the RTOS API; the rules, and the
 `configASSERT` trap waiting for those who break them, are covered in
 [Interrupt Management](../interrupt/README.md).
+
+## Heap Memory Management
+
+Every `xTaskCreate`, `xQueueCreate`, and `xTimerCreate` in this repository
+allocates its stacks and control blocks from the FreeRTOS heap through
+`pvPortMalloc` and `vPortFree`, not the toolchain's `malloc` and `free`. The
+standard library allocator is a poor fit for real-time work: it is rarely
+thread-safe, its timing is not deterministic, and its bookkeeping overhead is
+outside your control. FreeRTOS instead treats allocation as part of the
+*portable* layer and ships five interchangeable implementations under
+[`freertos/portable/MemMang`](../freertos/portable/MemMang); you compile
+exactly one of them into the image. Apart from heap_3, they all serve memory
+from a statically declared array of `configTOTAL_HEAP_SIZE` bytes, 15 KB in
+this project's `FreeRTOSConfig.h`.
+
+- **heap_1** only allocates and never frees. `vPortFree` does nothing, so
+  fragmentation is impossible and every allocation is deterministic. It fits
+  the common embedded pattern where every object is created at boot and lives
+  forever.
+- **heap_2** adds `vPortFree` with a best-fit search, but never merges
+  adjacent free blocks back together. Repeatedly allocating varied sizes
+  fragments its heap, and it survives only for backward compatibility;
+  heap_4 supersedes it.
+- **heap_3** wraps the compiler's own `malloc` and `free`, made thread-safe
+  by suspending the scheduler around each call. The heap lives wherever the
+  linker put it, and `configTOTAL_HEAP_SIZE` has no effect.
+- **heap_4** uses a first-fit search and, crucially, *coalesces* adjacent
+  free blocks into one, which lets it survive repeated create/delete cycles
+  without fragmenting. It is the general-purpose choice, and the one this
+  repository builds; see `FREERTOS_OBJS` in the template's
+  [`Makefile`](../template/app/Makefile).
+- **heap_5** is heap_4 extended to serve several non-contiguous memory
+  regions as one heap, described to the kernel with
+  `vPortDefineHeapRegions` before the first allocation. It exists for parts
+  whose RAM is scattered across the address map.
+
+Two query functions make sizing empirical instead of guesswork:
+`xPortGetFreeHeapSize` reports the heap remaining now, and
+`xPortGetMinimumEverFreeHeapSize` reports the low-water mark since boot, the
+number that tells you how close a run actually came to exhaustion.
+
+The heap is also optional. With `configSUPPORT_STATIC_ALLOCATION` set to 1,
+each kernel object gains a `Static` twin, `xTaskCreateStatic`,
+`xQueueCreateStatic`, and the rest, where the caller supplies the buffers and
+control block. Nothing is allocated at runtime, every byte is visible at link
+time, and allocation cannot fail, which is why safety-critical projects often
+forbid the dynamic API outright.
+
