@@ -133,3 +133,38 @@ A third, rarer hook rounds out the set: with
 `vApplicationDaemonTaskStartupHook()` once, when the timer service task first
 runs, a convenient spot for initialization that must wait until the scheduler
 is up.
+
+## CMSIS-RTOS
+
+CMSIS-RTOS is not another operating system: it is Arm's standard RTOS *API*,
+a vendor-neutral wrapper so that middleware and application code can be
+written once and run over any kernel that implements it. FreeRTOS is one such
+kernel, through Arm's CMSIS-FreeRTOS adapter, and that pairing is what
+STM32CubeMX generates when you tick the FreeRTOS box: the project it emits
+calls `osKernelInitialize` and `osThreadNew`, not `xTaskCreate`, with the
+native kernel running underneath. Two API versions exist, CMSIS-RTOS v1 and
+the current v2 (`cmsis_os2.h`); new code targets v2.
+
+Everything in this repository uses the native API deliberately, the wrapper
+is a thin layer, and knowing the native calls means you can read straight
+through it. The mapping is close to mechanical:
+
+| CMSIS-RTOS2 | FreeRTOS native |
+| --- | --- |
+| `osKernelInitialize` / `osKernelStart` | setup / `vTaskStartScheduler` |
+| `osThreadNew` | `xTaskCreate` |
+| `osDelay` | `vTaskDelay` |
+| `osMessageQueueNew` / `Put` / `Get` | `xQueueCreate` / `Send` / `Receive` |
+| `osSemaphoreNew` / `Acquire` / `Release` | `xSemaphoreCreate...` / `Take` / `Give` |
+| `osMutexNew` | `xSemaphoreCreateMutex` |
+| `osTimerNew` / `osTimerStart` | `xTimerCreate` / `xTimerStart` |
+| `osEventFlagsSet` / `Wait` | `xEventGroupSetBits` / `WaitBits` |
+| `osThreadFlagsSet` / `Wait` | `xTaskNotify` / `xTaskNotifyWait` |
+
+The vocabulary shifts, CMSIS says *thread* where FreeRTOS says *task*, and
+*event flags* for *event groups*, and priorities are expressed on the
+`osPriority_t` scale (`osPriorityLow` up through `osPriorityRealtime`) that
+the adapter maps onto the 0 to `configMAX_PRIORITIES - 1` range; both count
+upward, higher number meaning higher priority. When a Cube-generated project
+misbehaves, the fastest route is usually to translate the `os` calls back to
+this table and reason about the native kernel you already know.
